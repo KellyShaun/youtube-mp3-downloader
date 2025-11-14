@@ -26,22 +26,16 @@ def rate_limit(max_per_minute=6):
             return func(*args, **kwargs)
         return wrapper
     return decorator
-class YouTubeDownloader:
-        @rate_limit(max_per_minute=6)  # 6 requests per minute for info
-    def get_video_info(self, url):
-        # ... keep the existing method body the same
 
-    @rate_limit(max_per_minute=3)  # 3 downloads per minute
-    def download_audio(self, url, progress_hook=None):
-        # ... keep the existing method body the same
+class YouTubeDownloader:
     def __init__(self, download_folder):
         self.download_folder = download_folder
-        # Direct path to FFmpeg - use the same path that worked in the manual test
-        self.ffmpeg_location = r"C:\ffmpeg\bin"
+        # Use system FFmpeg path for Render
+        self.ffmpeg_location = '/usr/local/bin/ffmpeg'
         print(f"YouTubeDownloader initialized with folder: {download_folder}")
         print(f"FFmpeg location: {self.ffmpeg_location}")
 
-        def get_ydl_opts(self, for_download=False):
+    def get_ydl_opts(self, for_download=False):
         """Return yt-dlp options with proper headers and configuration"""
         base_opts = {
             # Format selection
@@ -95,6 +89,7 @@ class YouTubeDownloader:
             
         return base_opts
 
+    @rate_limit(max_per_minute=6)
     def get_video_info(self, url):
         """Get video information without downloading"""
         try:
@@ -114,66 +109,12 @@ class YouTubeDownloader:
             print(f"Error getting video info: {str(e)}")
             return {'success': False, 'error': str(e)}
 
+    @rate_limit(max_per_minute=3)
     def download_audio(self, url, progress_hook=None):
         """Download audio from YouTube URL"""
         try:
             ydl_opts = self.get_ydl_opts(for_download=True)
             
-            # Add progress hook if provided
-            if progress_hook:
-                ydl_opts['progress_hooks'] = [progress_hook]
-
-            print(f"Starting download process for: {url}")
-            print(f"Using FFmpeg at: {self.ffmpeg_location}")
-            
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                # Get info first
-                info = ydl.extract_info(url, download=False)
-                original_title = info['title']
-                expected_filename = self.sanitize_filename(f"{original_title}.mp3")
-                expected_path = os.path.join(self.download_folder, expected_filename)
-                
-                print(f"Expected output: {expected_filename}")
-                
-                # Download the audio
-                print("Starting download and conversion...")
-                ydl.download([url])
-                print("Download process completed")
-            
-            # Check if MP3 file was created
-            if os.path.exists(expected_path):
-                print(f"✓ MP3 file created successfully: {expected_filename}")
-                return {
-                    'success': True,
-                    'filename': expected_filename,
-                    'title': original_title,
-                    'duration': info.get('duration', 0)
-                }
-            
-            # If expected file doesn't exist, look for any MP3 files
-            print("Checking for MP3 files in download folder...")
-            mp3_files = []
-            for file in os.listdir(self.download_folder):
-                if file.endswith('.mp3'):
-                    mp3_files.append(file)
-                    print(f"Found MP3 file: {file}")
-            
-            if mp3_files:
-                latest_file = max(mp3_files, key=lambda f: os.path.getctime(os.path.join(self.download_folder, f)))
-                print(f"✓ Using MP3 file: {latest_file}")
-                return {
-                    'success': True,
-                    'filename': latest_file,
-                    'title': original_title,
-                    'duration': info.get('duration', 0)
-                }
-            
-            return {'success': False, 'error': 'No MP3 files were created'}
-                
-        except Exception as e:
-            print(f"Download error: {str(e)}")
-            return {'success': False, 'error': str(e)}
-
             # Add progress hook if provided
             if progress_hook:
                 ydl_opts['progress_hooks'] = [progress_hook]
@@ -254,5 +195,4 @@ class YouTubeDownloader:
         if hours > 0:
             return f"{hours:02d}:{minutes:02d}:{secs:02d}"
         else:
-
             return f"{minutes:02d}:{secs:02d}"
