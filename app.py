@@ -27,7 +27,7 @@ os.makedirs(app.config['DOWNLOAD_FOLDER'], exist_ok=True)
 
 # Import YouTubeDownloader
 try:
-    from utils.youtube_downloader import YouTubeDownloader
+    from youtube_downloader import YouTubeDownloader
     print("✓ YouTubeDownloader imported successfully")
 except ImportError as e:
     print(f"✗ YouTubeDownloader import failed: {e}")
@@ -411,4 +411,5 @@ if __name__ == '__main__':
     # Get port from environment variable (for Replit/Railway/Heroku)
     port = int(os.environ.get('PORT', 5000))
     print(f"Server starting on port {port}")
+
     app.run(host='0.0.0.0', port=port, debug=False)
