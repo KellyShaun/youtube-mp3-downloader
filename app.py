@@ -25,21 +25,8 @@ print(f"Download folder: {app.config['DOWNLOAD_FOLDER']}")
 # Ensure download directory exists
 os.makedirs(app.config['DOWNLOAD_FOLDER'], exist_ok=True)
 
-# Import YouTubeDownloader
-try:
-    from youtube_downloader import YouTubeDownloader
-    print("✓ YouTubeDownloader imported successfully")
-except ImportError as e:
-    print(f"✗ YouTubeDownloader import failed: {e}")
-    # Create simple fallback
-    class YouTubeDownloader:
-        def __init__(self, folder):
-            self.download_folder = folder
-            print("Using fallback downloader")
-        def download_audio(self, url, progress_hook=None):
-            return {'success': False, 'error': 'Downloader not available'}
-        def get_video_info(self, url):
-            return {'success': False, 'error': 'Downloader not available'}
+# Use the YouTubeDownloader class that's already defined in this file
+print("✓ Using built-in YouTubeDownloader class")
 
 # Store download progress (temporary - resets on app restart)
 download_progress = {}
@@ -413,3 +400,4 @@ if __name__ == '__main__':
     print(f"Server starting on port {port}")
 
     app.run(host='0.0.0.0', port=port, debug=False)
+
