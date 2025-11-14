@@ -56,9 +56,32 @@ class YouTubeDownloader:
     def __init__(self, download_folder):
         self.download_folder = download_folder
         # Use system FFmpeg path for Render
-        self.ffmpeg_location = '/usr/local/bin/ffmpeg'
+        self.ffmpeg_location = 'self.find_ffmpeg
         print(f"YouTubeDownloader initialized with folder: {download_folder}")
         print(f"FFmpeg location: {self.ffmpeg_location}")
+
+        def find_ffmpeg(self):
+        """Find FFmpeg in common locations"""
+        possible_paths = [
+            'ffmpeg',  # Try system PATH first
+            '/usr/bin/ffmpeg',
+            '/usr/local/bin/ffmpeg',
+            '/opt/render/project/src/ffmpeg',  # If we download it manually
+        ]
+        
+        import subprocess
+        for path in possible_paths:
+            try:
+                # Test if FFmpeg works at this path
+                result = subprocess.run([path, '-version'], capture_output=True, text=True, timeout=5)
+                if result.returncode == 0:
+                    print(f"✓ Found working FFmpeg at: {path}")
+                    return path
+            except (subprocess.SubprocessError, FileNotFoundError, OSError):
+                continue
+        
+        print("⚠️ FFmpeg not found in common locations. Audio conversion may fail.")
+        return 'ffmpeg'  # Fallback to hoping it's in PATH
 
     def get_ydl_opts(self, for_download=False):
         """Return yt-dlp options with proper headers and configuration"""
@@ -595,3 +618,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Server starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
